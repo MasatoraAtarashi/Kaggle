@@ -149,17 +149,20 @@ def answer_one():
 # 
 # *This function should return a single number.*
 
-# In[1]:
+# In[268]:
 
 
 get_ipython().run_cell_magic('HTML', '', '<svg width="800" height="300">\n  <circle cx="150" cy="180" r="80" fill-opacity="0.2" stroke="black" stroke-width="2" fill="blue" />\n  <circle cx="200" cy="100" r="80" fill-opacity="0.2" stroke="black" stroke-width="2" fill="red" />\n  <circle cx="100" cy="100" r="80" fill-opacity="0.2" stroke="black" stroke-width="2" fill="green" />\n  <line x1="150" y1="125" x2="300" y2="150" stroke="black" stroke-width="2" fill="black" stroke-dasharray="5,3"/>\n  <text  x="300" y="165" font-family="Verdana" font-size="35">Everything but this!</text>\n</svg>')
 
 
-# In[ ]:
+# In[274]:
 
 
 def answer_two():
-    return "ANSWER"
+    c = pd.merge(ScimEn, energy,  how='inner', left_on='Country', right_on='Country')
+    d = pd.merge(energy, GDP,  how='inner', left_on='Country', right_on='Country')
+    e = pd.merge(ScimEn, GDP,  how='inner', left_on='Country', right_on='Country')
+    return len(energy) + len(GDP) + len(ScimEn) - len(c) - len(d) - len(e)
 
 
 # ## Answer the following questions in the context of only the top 15 countries by Scimagojr Rank (aka the DataFrame returned by `answer_one()`)
@@ -169,12 +172,15 @@ def answer_two():
 # 
 # *This function should return a Series named `avgGDP` with 15 countries and their average GDP sorted in descending order.*
 
-# In[ ]:
+# In[278]:
 
 
 def answer_three():
     Top15 = answer_one()
-    return "ANSWER"
+    rows = ['2006', '2007', '2008', '2009', '2010', '2011', '2012', '2013', '2014', '2015']
+    answer = Top15.apply(lambda x: np.mean(x[rows]), axis=1)
+    return answer
+answer_three()
 
 
 # ### Question 4 (6.6%)
@@ -182,12 +188,15 @@ def answer_three():
 # 
 # *This function should return a single number.*
 
-# In[ ]:
+# In[361]:
 
 
 def answer_four():
     Top15 = answer_one()
-    return "ANSWER"
+    mean = answer_three()
+    Top15["mean_GDP"] = mean
+    Top15_by_mean_GDP = Top15.sort_values("mean_GDP", ascending=False)
+    return Top15_by_mean_GDP["2015"][5] - Top15_by_mean_GDP["2006"][5]
 
 
 # ### Question 5 (6.6%)
@@ -195,12 +204,12 @@ def answer_four():
 # 
 # *This function should return a single number.*
 
-# In[ ]:
+# In[328]:
 
 
 def answer_five():
     Top15 = answer_one()
-    return "ANSWER"
+    return Top15["Energy Supply per Capita"].mean()
 
 
 # ### Question 6 (6.6%)
