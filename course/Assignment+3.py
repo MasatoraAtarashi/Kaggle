@@ -137,10 +137,15 @@ b = b[0:15]
 b
 
 
-# In[521]:
+# In[546]:
 
 
 def answer_one():
+    a = pd.merge(ScimEn, energy,  how='inner', left_on='Country', right_on='Country')
+    b = pd.merge(a, GDP,  how='inner', left_on='Country', right_on='Country')
+    b = b.set_index('Country')
+    b = b.sort_values('Rank', ascending=True)
+    b = b[0:15]
     return b
 b
 
@@ -332,7 +337,7 @@ def answer_ten():
 # 
 # *This function should return a DataFrame with index named Continent `['Asia', 'Australia', 'Europe', 'North America', 'South America']` and columns `['size', 'sum', 'mean', 'std']`*
 
-# In[540]:
+# In[545]:
 
 
 def answer_eleven():
@@ -363,6 +368,7 @@ def answer_eleven():
     result = result.rename(columns={"Country": "Continent"})
     result = result.set_index("Continent")
     return result
+answer_eleven()
 
 
 # ### Question 12 (6.6%)
@@ -370,12 +376,35 @@ def answer_eleven():
 # 
 # *This function should return a __Series__ with a MultiIndex of `Continent`, then the bins for `% Renewable`. Do not include groups with no countries.*
 
-# In[ ]:
+# In[576]:
 
 
 def answer_twelve():
     Top15 = answer_one()
-    return "ANSWER"
+    ContinentDict  = {'China':'Asia', 
+                  'United States':'North America', 
+                  'Japan':'Asia', 
+                  'United Kingdom':'Europe', 
+                  'Russian Federation':'Europe', 
+                  'Canada':'North America', 
+                  'Germany':'Europe', 
+                  'India':'Asia',
+                  'France':'Europe', 
+                  'South Korea':'Asia', 
+                  'Italy':'Europe', 
+                  'Spain':'Europe', 
+                  'Iran':'Asia',
+                  'Australia':'Australia', 
+                  'Brazil':'South America'}
+    Top15.rename(index=ContinentDict,inplace=True)
+    Top15 = Top15.reset_index()
+    Top15 = Top15.rename(columns={"Country": "Continent"})
+    Top15 = Top15.set_index("Continent")
+    Top15['bin'] = pd.cut(Top15['% Renewable'],5)
+    Top15['% Renewable'] = np.float64(Top15['% Renewable'])
+    Top15 = Top15.reset_index()
+    Top15_grouped = Top15.groupby(["Continent", 'bin'])
+    return Top15_grouped.size()
 
 
 # ### Question 13 (6.6%)
@@ -385,19 +414,21 @@ def answer_twelve():
 # 
 # *This function should return a Series `PopEst` whose index is the country name and whose values are the population estimate string.*
 
-# In[ ]:
+# In[558]:
 
 
 def answer_thirteen():
     Top15 = answer_one()
-    return "ANSWER"
+    Top15["Population"] = Top15["Energy Supply"] / Top15["Energy Supply per Capita"]
+    Top15["Population"] = Top15["Population"].apply(lambda x: format(x, ","))
+    return Top15["Population"]
 
 
 # ### Optional
 # 
 # Use the built in function `plot_optional()` to see an example visualization.
 
-# In[ ]:
+# In[574]:
 
 
 def plot_optional():
@@ -415,8 +446,14 @@ def plot_optional():
     print("This is an example of a visualization that can be created to help understand the data. This is a bubble chart showing % Renewable vs. Rank. The size of the bubble corresponds to the countries' 2014 GDP, and the color corresponds to the continent.")
 
 
+# In[575]:
+
+
+# plot_optional() # Be sure to comment out plot_optional() before submitting the assignment!
+
+
 # In[ ]:
 
 
-#plot_optional() # Be sure to comment out plot_optional() before submitting the assignment!
+
 
