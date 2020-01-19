@@ -126,7 +126,7 @@ ScimEn.head()
 len(ScimEn)
 
 
-# In[266]:
+# In[537]:
 
 
 a = pd.merge(ScimEn, energy,  how='inner', left_on='Country', right_on='Country')
@@ -137,11 +137,12 @@ b = b[0:15]
 b
 
 
-# In[267]:
+# In[521]:
 
 
 def answer_one():
     return b
+b
 
 
 # ### Question 2 (6.6%)
@@ -217,12 +218,12 @@ def answer_five():
 # 
 # *This function should return a tuple with the name of the country and the percentage.*
 
-# In[ ]:
+# In[368]:
 
 
 def answer_six():
     Top15 = answer_one()
-    return "ANSWER"
+    return (Top15["% Renewable"].idxmax(), Top15["% Renewable"].max())
 
 
 # ### Question 7 (6.6%)
@@ -231,12 +232,13 @@ def answer_six():
 # 
 # *This function should return a tuple with the name of the country and the ratio.*
 
-# In[ ]:
+# In[374]:
 
 
 def answer_seven():
     Top15 = answer_one()
-    return "ANSWER"
+    Top15["ratio of Self-Citations to Total Citations"] = Top15["Self-citations"] / Top15["Citations"]
+    return (Top15["ratio of Self-Citations to Total Citations"].idxmax(), Top15["ratio of Self-Citations to Total Citations"].max())
 
 
 # ### Question 8 (6.6%)
@@ -246,12 +248,14 @@ def answer_seven():
 # 
 # *This function should return a single string value.*
 
-# In[ ]:
+# In[394]:
 
 
 def answer_eight():
     Top15 = answer_one()
-    return "ANSWER"
+    Top15["Population"] = Top15["Energy Supply"] / Top15["Energy Supply per Capita"]
+    Top15 = Top15.sort_values("Population", ascending=False)
+    return Top15.index[2]
 
 
 # ### Question 9 (6.6%)
@@ -262,31 +266,33 @@ def answer_eight():
 # 
 # *(Optional: Use the built-in function `plot9()` to visualize the relationship between Energy Supply per Capita vs. Citable docs per Capita)*
 
-# In[ ]:
+# In[544]:
 
 
 def answer_nine():
     Top15 = answer_one()
-    return "ANSWER"
+    Top15["Population"] = Top15["Energy Supply"] / Top15["Energy Supply per Capita"]
+    Top15['Citable docs per Capita'] = Top15['Citable documents'] / Top15["Population"]
+    return Top15['Citable docs per Capita'].corr(Top15['Energy Supply per Capita'], method='pearson')
 
 
-# In[ ]:
+# In[403]:
 
 
-def plot9():
-    import matplotlib as plt
-    get_ipython().magic('matplotlib inline')
+# def plot9():
+#     import matplotlib as plt
+#     %matplotlib inline
     
-    Top15 = answer_one()
-    Top15['PopEst'] = Top15['Energy Supply'] / Top15['Energy Supply per Capita']
-    Top15['Citable docs per Capita'] = Top15['Citable documents'] / Top15['PopEst']
-    Top15.plot(x='Citable docs per Capita', y='Energy Supply per Capita', kind='scatter', xlim=[0, 0.0006])
+#     Top15 = answer_one()
+#     Top15['PopEst'] = Top15['Energy Supply'] / Top15['Energy Supply per Capita']
+#     Top15['Citable docs per Capita'] = Top15['Citable documents'] / Top15['PopEst']
+#     Top15.plot(x='Citable docs per Capita', y='Energy Supply per Capita', kind='scatter', xlim=[0, 0.0006])
 
 
-# In[ ]:
+# In[404]:
 
 
-#plot9() # Be sure to comment out plot9() before submitting the assignment!
+# plot9() # Be sure to comment out plot9() before submitting the assignment!
 
 
 # ### Question 10 (6.6%)
@@ -294,12 +300,13 @@ def plot9():
 # 
 # *This function should return a series named `HighRenew` whose index is the country name sorted in ascending order of rank.*
 
-# In[ ]:
+# In[525]:
 
 
 def answer_ten():
     Top15 = answer_one()
-    return "ANSWER"
+    Top15["HighRenew"] = (Top15["% Renewable"] >= Top15["% Renewable"].median()).astype(np.int64)
+    return Top15["HighRenew"]
 
 
 # ### Question 11 (6.6%)
@@ -325,12 +332,37 @@ def answer_ten():
 # 
 # *This function should return a DataFrame with index named Continent `['Asia', 'Australia', 'Europe', 'North America', 'South America']` and columns `['size', 'sum', 'mean', 'std']`*
 
-# In[ ]:
+# In[540]:
 
 
 def answer_eleven():
     Top15 = answer_one()
-    return "ANSWER"
+    ContinentDict  = {'China':'Asia', 
+                  'United States':'North America', 
+                  'Japan':'Asia', 
+                  'United Kingdom':'Europe', 
+                  'Russian Federation':'Europe', 
+                  'Canada':'North America', 
+                  'Germany':'Europe', 
+                  'India':'Asia',
+                  'France':'Europe', 
+                  'South Korea':'Asia', 
+                  'Italy':'Europe', 
+                  'Spain':'Europe', 
+                  'Iran':'Asia',
+                  'Australia':'Australia', 
+                  'Brazil':'South America'}
+    Top15["Population"] = Top15["Energy Supply"] / Top15["Energy Supply per Capita"]
+    copy = Top15.copy()
+    copy.rename(index=ContinentDict,inplace=True)
+    copy = copy.reset_index()
+    copy
+    functions = ['size', 'sum', 'mean', 'std']
+    result = copy.groupby('Country')["Population"].agg(functions)
+    result = result.reset_index()
+    result = result.rename(columns={"Country": "Continent"})
+    result = result.set_index("Continent")
+    return result
 
 
 # ### Question 12 (6.6%)
