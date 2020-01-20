@@ -7,7 +7,7 @@
 
 # Hi! In this programming assignment you need to refresh your `pandas` knowledge. You will need to do several [`groupby`](https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.groupby.html)s and [`join`]()`s to solve the task. 
 
-# In[2]:
+# In[1]:
 
 
 import pandas as pd
@@ -19,7 +19,7 @@ get_ipython().magic('matplotlib inline')
 from grader import Grader
 
 
-# In[3]:
+# In[2]:
 
 
 DATA_FOLDER = '../readonly/final_project_data/'
@@ -52,26 +52,26 @@ grader = Grader()
 #   <li><b>Print the shape of the loaded dataframes and use [`df.head`](https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.head.html) function to print several rows. Examine the features you are given.</b></li>
 # </ol>
 
-# In[14]:
+# In[4]:
 
 
 # YOUR CODE GOES HERE
 shops.head()
 
 
-# In[10]:
+# In[5]:
 
 
 items.head()
 
 
-# In[12]:
+# In[6]:
 
 
 item_categories.head()
 
 
-# In[16]:
+# In[7]:
 
 
 transactions.head()
@@ -91,25 +91,43 @@ transactions.head()
 # * It is handy to split `date` field into [`day`, `month`, `year`] components and use `df.year == 14` and `df.month == 9` in order to select target subset of dates.
 # * You may work with `date` feature as with srings, or you may first convert it to `pd.datetime` type with `pd.to_datetime` function, but do not forget to set correct `format` argument.
 
-# In[4]:
+# In[8]:
 
 
 transactions = pd.concat([transactions, transactions['date'].str.split('.', expand=True)], axis=1)
 
 
-# In[8]:
+# In[9]:
 
 
-transactions.rename(columns={0: 'month', 1: 'day', 2: 'year'}, inplace=True)
-transactions.head()
+transactions.rename(columns={1: 'month', 0: 'day', 2: 'year'}, inplace=True)
+transactions.tail()
 
 
-# In[ ]:
+# In[10]:
+
+
+transactions['Revenue'] = transactions['item_price'] * transactions['item_cnt_day']
+
+
+# In[11]:
+
+
+df = transactions[(transactions['year'] == '2014') & (transactions['month'] == '09')]
+
+
+# In[35]:
+
+
+revenue = df.groupby('shop_id').sum()
+
+
+# In[15]:
 
 
 # YOUR CODE GOES HERE
 
-max_revenue = # PUT YOUR ANSWER IN THIS VARIABLE
+max_revenue = revenue['Revenue'].max()
 grader.submit_tag('max_revenue', max_revenue)
 
 
@@ -127,12 +145,46 @@ grader.submit_tag('max_revenue', max_revenue)
 # 
 # * Note, that for an object `x` of type `pd.Series`: `x.argmax()` returns **index** of the maximum element. `pd.Series` can have non-trivial index (not `[1, 2, 3, ... ]`).
 
-# In[ ]:
+# In[18]:
+
+
+transactions.head()
+
+
+# In[68]:
+
+
+transactions_with_category = pd.merge(transactions, items)
+
+
+# In[69]:
+
+
+transactions_with_category.head()
+
+
+# In[70]:
+
+
+df2 = transactions_with_category[(transactions_with_category['year'] == '2014') & ((transactions_with_category['month'] == '06') | (transactions_with_category['month'] == '07') | (transactions_with_category['month'] == '08'))]
+df2.tail()
+
+
+# In[71]:
+
+
+item_sale = df2.groupby('item_category_id').sum()
+# item_sale.iloc[2578]
+# item_sale["Revenue"].idxmax()
+# item_sale[item_sale.index == 6675]
+
+
+# In[72]:
 
 
 # YOUR CODE GOES HERE
 
-category_id_with_max_revenue = # PUT YOUR ANSWER IN THIS VARIABLE
+category_id_with_max_revenue = item_sale['Revenue'].idxmax()
 grader.submit_tag('category_id_with_max_revenue', category_id_with_max_revenue)
 
 
@@ -183,15 +235,15 @@ grader.submit_tag('total_num_items_sold_var', total_num_items_sold_var)
 # ## Authorization & Submission
 # To submit assignment to Cousera platform, please, enter your e-mail and token into the variables below. You can generate token on the programming assignment page. *Note:* Token expires 30 minutes after generation.
 
-# In[ ]:
+# In[75]:
 
 
-STUDENT_EMAIL = # EMAIL HERE
-STUDENT_TOKEN = # TOKEN HERE
+STUDENT_EMAIL = 'atarashi.masatora@gmail.com'
+STUDENT_TOKEN = 'J5vARxK5wlWGQOLc'
 grader.status()
 
 
-# In[ ]:
+# In[76]:
 
 
 grader.submit(STUDENT_EMAIL, STUDENT_TOKEN)
