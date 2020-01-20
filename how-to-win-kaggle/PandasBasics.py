@@ -174,9 +174,6 @@ df2.tail()
 
 
 item_sale = df2.groupby('item_category_id').sum()
-# item_sale.iloc[2578]
-# item_sale["Revenue"].idxmax()
-# item_sale[item_sale.index == 6675]
 
 
 # In[72]:
@@ -194,12 +191,38 @@ grader.submit_tag('category_id_with_max_revenue', category_id_with_max_revenue)
 # 
 # * Let's assume, that the items are returned for the same price as they had been sold.
 
-# In[ ]:
+# In[78]:
+
+
+transactions.head()
+
+
+# In[126]:
+
+
+# df3 = transactions[transactions['item_cnt_day'] >= 1]
+df3 = transactions.groupby('item_id').agg({"item_price":"nunique", "item_cnt_day":"nunique"})
+df3[df3['item_cnt_day'] == 1].index
+
+
+# In[118]:
+
+
+df3[df3['item_price'] == 1].count()
+
+
+# In[116]:
+
+
+len(df3[df3['item_price'] == 1])
+
+
+# In[138]:
 
 
 # YOUR CODE GOES HERE
 
-num_items_constant_price = # PUT YOUR ANSWER IN THIS VARIABLE
+num_items_constant_price = len(df3[df3['item_price'] == 1])
 grader.submit_tag('num_items_constant_price', num_items_constant_price)
 
 
@@ -213,13 +236,44 @@ grader.submit_tag('num_items_constant_price', num_items_constant_price)
 # * Then compute variance. Remember, there can be differences in how you normalize variance (biased or unbiased estimate, see [link](https://math.stackexchange.com/questions/496627/the-difference-between-unbiased-biased-estimator-variance)). Compute ***unbiased*** estimate (use the right value for `ddof` argument in `pd.var` or `np.var`). 
 # * If there were no sales at a given day, ***do not*** impute missing value with zero, just ignore that day
 
-# In[ ]:
+# In[141]:
+
+
+transactions.head()
+
+
+# In[176]:
+
+
+df4 = transactions[(transactions['year'] == '2014') & (transactions['month'] == '12') & (transactions['shop_id'] == 25)]
+df4.sort_values('day')
+
+
+# In[154]:
+
+
+df4['item_cnt_day'].sum() + df4[df4['item_cnt_day'] < 0]["item_cnt_day"].sum()
+
+
+# In[159]:
+
+
+df4.groupby('day').agg({"item_cnt_day":"sum"})
+
+
+# In[164]:
+
+
+df4.groupby('day').agg({"item_cnt_day":"sum"}).var()
+
+
+# In[178]:
 
 
 shop_id = 25
 
-total_num_items_sold = # YOUR CODE GOES HERE
-days = # YOUR CODE GOES HERE
+total_num_items_sold = df4.groupby('day').agg({"item_cnt_day":"sum"})["item_cnt_day"]
+days = df4.groupby('day').agg({"item_cnt_day":"sum"}).index
 
 # Plot it
 plt.plot(days, total_num_items_sold)
@@ -228,22 +282,22 @@ plt.xlabel('Day')
 plt.title("Daily revenue for shop_id = 25")
 plt.show()
 
-total_num_items_sold_var = # PUT YOUR ANSWER IN THIS VARIABLE
+total_num_items_sold_var = np.var(total_num_items_sold, ddof=1)
 grader.submit_tag('total_num_items_sold_var', total_num_items_sold_var)
 
 
 # ## Authorization & Submission
 # To submit assignment to Cousera platform, please, enter your e-mail and token into the variables below. You can generate token on the programming assignment page. *Note:* Token expires 30 minutes after generation.
 
-# In[75]:
+# In[179]:
 
 
 STUDENT_EMAIL = 'atarashi.masatora@gmail.com'
-STUDENT_TOKEN = 'J5vARxK5wlWGQOLc'
+STUDENT_TOKEN = 'AkFO0ZFAsjDFSGpJ'
 grader.status()
 
 
-# In[76]:
+# In[180]:
 
 
 grader.submit(STUDENT_EMAIL, STUDENT_TOKEN)
